@@ -1,9 +1,10 @@
-import { Component } from 'react';
+import { Component, useState } from 'react';
 import SearchBar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
-import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
+// import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
+import Modal from './Modal/Modal';
 
 
 
@@ -15,6 +16,10 @@ export default class App extends Component {
     photos: [],
     images: [],
     currentPage: 1,
+    loading: false,
+    selectedImage: null,
+    modalOpen: false,
+
     
   };
 
@@ -32,9 +37,12 @@ export default class App extends Component {
   componentDidUpdate(prevProps) {
     const prevName = prevProps.searchName;
     const nextName = this.props.searchName;
+    const prevPage = prevProps.currentPage;
+    const nextPage = this.props.currentPage;
 
-    if (prevName !== nextName) {
+    if (prevName !== nextName || prevPage !== nextPage) {
       this.fetchImages(nextName, 1);
+      
     }
   }
 
@@ -71,19 +79,41 @@ export default class App extends Component {
     this.fetchImages(searchName, nextPage);
   };
 
+  openModal = (image) => {
+    this.setState({ modalOpen: true, selectedImage: image });
+  };
+
+  closeModal = () => {
+    this.setState({ modalOpen: false, selectedImage: null });
+  };
+
   render() {
-    const { images, searchName } = this.state;
+    const { images, searchName, loading, modalOpen, selectedImage } = this.state;
+    // const [isOpen, onClose] = this.state
 
     return (
       <div>
         <SearchBar onSubmit={this.handleFormSubmit} />
         {images.length > 0 && (
           <>
-            <ImageGallery images={images} />
+            <ImageGallery images={images}  openModal={this.openModal}/>
+            </>
+            )}
+            {images.length > 11 &&
+            (
+            <>
             <Button onLoadMore={this.handleLoadMore} />
           </>
         )}
 
+        <Loader loading={loading}/>
+
+        {modalOpen && (
+          <Modal active={modalOpen} setActive={this.closeModal}>
+            <img src={selectedImage.largeImageURL} alt={selectedImage.tags} />
+          </Modal>
+        )}
+        
         <Loader searchName={searchName} />
       </div>
     );
