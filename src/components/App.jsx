@@ -1,4 +1,4 @@
-import { Component, useState } from 'react';
+import { Component } from 'react';
 import SearchBar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 // import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
