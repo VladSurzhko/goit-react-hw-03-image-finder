@@ -17,6 +17,12 @@ width: 20%;
     border-radius: 5px;
     overflow: hidden;
     position: relative;
+    cursor: pointer;
+    
+    :hover{
+        transform: scale(1.02);
+        cursor: pointer;    
+    }
 `
 
 export const Image = styled.img`
