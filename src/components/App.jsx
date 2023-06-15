@@ -31,17 +31,17 @@ export default class App extends Component {
 
 
     this.setState({ searchName, images: [], currentPage: 1 });
-    this.fetchImages(searchName, 1);
+    
   };
 
-  componentDidUpdate(prevProps) {
-    const prevName = prevProps.searchName;
-    const nextName = this.props.searchName;
-    const prevPage = prevProps.currentPage;
-    const nextPage = this.props.currentPage;
+  componentDidUpdate(prevProps, prevState) {
+  const {searchName, currentPage} = this.state  
+    
 
-    if (prevName !== nextName || prevPage !== nextPage) {
-      this.fetchImages(nextName, 1);
+    if (prevState.searchName !== searchName 
+      || prevState.currentPage !== currentPage) {
+
+      this.fetchImages(searchName, currentPage);
       
     }
   }
@@ -49,6 +49,8 @@ export default class App extends Component {
 
   
   fetchImages = (searchName, page) => {
+    this.setState({loading: true})
+
     fetch(
       `https://pixabay.com/api/?q=${searchName}&page=${page}&key=35867902-bd768db4cb6d1ffc0364d5f36&image_type=photo&orientation=horizontal&per_page=12`
     )
@@ -74,9 +76,24 @@ export default class App extends Component {
   };
 
   handleLoadMore = () => {
-    const { searchName, currentPage } = this.state;
+    const { currentPage } = this.state;
     const nextPage = currentPage + 1;
-    this.fetchImages(searchName, nextPage);
+    this.setState({currentPage: nextPage});
+  };
+
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown = (event) => {
+    if (event.keyCode === 27) {
+      this.closeModal();
+    }
   };
 
   openModal = (image) => {
@@ -88,23 +105,25 @@ export default class App extends Component {
   };
 
   render() {
-    const { images, searchName, loading, modalOpen, selectedImage } = this.state;
+    const { images, loading, modalOpen, selectedImage } = this.state;
     // const [isOpen, onClose] = this.state
 
     return (
       <div>
         <SearchBar onSubmit={this.handleFormSubmit} />
         {images.length > 0 && (
-          <>
+          
             <ImageGallery images={images}  openModal={this.openModal}/>
-            </>
+          
             )}
-            {images.length > 11 &&
+            {images.length > 0 && images.length % 12 === 0 &&
             (
-            <>
+            
             <Button onLoadMore={this.handleLoadMore} />
-          </>
+        
         )}
+      
+        
 
         <Loader loading={loading}/>
 
@@ -114,7 +133,7 @@ export default class App extends Component {
           </Modal>
         )}
         
-        <Loader searchName={searchName} />
+        {/* <Loader searchName={searchName} /> */}
       </div>
     );
   }
